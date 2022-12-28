@@ -5,19 +5,39 @@ on:
     branches:
       - main
 jobs:
+  find-extensions:
+    name: Find Extensions
+    runs-on: ubuntu-latest
+    outputs:
+      folders: ${{ steps.jobs.outputs.folders }}
+    steps:
+      - uses: actions/checkout@v1
+      - id: extensions
+        uses: philips-labs/list-folders-action@v1
+        with:
+          path: ./src
+
   build-extensions:
     runs-on: ubuntu-latest
+    needs: 
+      - find-jobs
+    defaults:
+      run:
+        working-directory: ${{ matrix.folder }}
+    strategy:
+      matrix:
+        folder: ${{ fromJson(needs.find-jobs.outputs.folders )}}
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 16
-    - name: Run 'make build'
-      run: make build
-      shell: bash
-    - name: Upload plugins
-      uses: actions/upload-artifact@v3
-      with:
-        name: dist-without-markdown
-        path: |
-          dist/*
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: npm
+      - name: Run 'make build'
+        run: npm run --prefix build ../dist
+        shell: bash
+      - name: Upload plugins
+        uses: actions/upload-artifact@v3
+        with:
+          path: |
+            dist/${{ matrix.folder }}*.tgz
