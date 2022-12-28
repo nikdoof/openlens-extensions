@@ -1,0 +1,23 @@
+
+name: build-extensions
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build-extensions:
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16
+        cache: 'npm'
+    - name: Run 'make build'
+      run: make build
+      shell: bash
+    - name: Upload plugins
+      uses: actions/upload-artifact@v3
+      with:
+        name: dist-without-markdown
+        path: |
+          dist/*
