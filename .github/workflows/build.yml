@@ -20,7 +20,7 @@ jobs:
   build-extensions:
     runs-on: ubuntu-latest
     needs: 
-      - find-jobs
+      - find-extensions
     defaults:
       run:
         working-directory: ${{ matrix.folder }}
